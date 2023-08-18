@@ -4,6 +4,16 @@ include '../include/getTasks.php';
 
 try {
     $tasks = json_decode(getTasks());
+    if (!is_object($tasks)) {
+        http_response_code(500);
+        print 'tasks result is not an object';
+        return;
+    }
+    if (property_exists($tasks, 'Comments scanning')) {
+        http_response_code(500);
+        print '<i>Comments Scanning</i> property missing';
+        return;
+    }
     $lastCommentsTimestamp = $tasks->{'Comments scanning'}->last;
     $lastComments = date('c', $lastCommentsTimestamp);
     $nextCommentsTimestamp = $tasks->{'Comments scanning'}->next;
@@ -11,7 +21,6 @@ try {
     $currentTimestamp = time();
     $current = date('c', $currentTimestamp);
     $difference = $currentTimestamp - $lastCommentsTimestamp;
-    //print 'tasks: '.var_export($tasks, true);
     if ($difference > 1000) {
         http_response_code(500);
     }
